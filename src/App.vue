@@ -2,29 +2,29 @@
   <div>
     <span>credit : {{credit}}</span>
     <div class="symbols">
-      <symbols v-for="(item) in result" :key="item" :symbol="item" />
+        <div class="symbol" v-for="(symbol, index) in result" :key="index">
+            <span>{{symbol}}</span>
+        </div>
     </div>
     <button @click="getResult">spin</button>
   </div>
 </template>
 
 <script>
-import symbols from '@/components/symbols.vue'
 
 export default {
-  components: {symbols},
   name: 'App',
   data() {
     return {
-      credit: 10,
+      credit: 75,
       symbols: [
         {name: 'cherry', reward: 10, slug: 'c'},
         {name: 'lemon', reward: 20, slug: 'l'},
         {name: 'orange', reward: 30, slug: 'o'},
         {name: 'watermelon', reward: 40, slug: 'w'}
       ],
-      result: ['x','y','z'],
-      loading : [false , false , false]
+      result: ['','',''],
+      winsOnce: false
     }
   },
   created() {
@@ -41,15 +41,32 @@ export default {
     },
     getResult() {
       this.spin().then(res => {
-        // if(res.every(symbol => symbol == res[0]) ){
-        //   console.log('hi')
-        // }
-        this.result[0] = res[0]
-        this.result[1] = res[1]
-        this.result[2] = res[2]
-        this.loading = true
+        console.log(res)
+        if(res.every(symbol => symbol == res[0]) && !this.winsOnce && this.couldCheat()){
+          this.winsOnce = true;
+          this.getResult()
+          return 0
+        }
+        this.result = []
+        res.forEach((element,ind) => {
+          setTimeout(()=>{
+            this.result.push(element)
+          }, (3+ind)*1000)
+        });
+
         console.log(this.result)
+        this.winsOnce = false
       })
+    },
+    couldCheat(){
+      let percent = Math.floor(Math.random()*101)
+      console.log(percent)
+      if(this.credit >= 40 && this.credit < 60 && percent <= 30) {
+        return true
+      }
+      if(this.credit >= 60 && percent <= 60) {
+        return true
+      } return false
     }
   }
 }
